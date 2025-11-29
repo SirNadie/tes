@@ -1,4 +1,9 @@
 /* THIS FILE WAS GENERATED AUTOMATICALLY BY PAYLOAD. */
-import { REST, POST, GET, DELETE, PUT, OPTIONS } from '@payloadcms/next/routes'
+import { REST_DELETE, REST_GET, REST_OPTIONS, REST_POST, REST_PUT } from '@payloadcms/next/routes'
+import configPromise from '@payload-config'
 
-export const { POST, GET, DELETE, PUT, OPTIONS } = REST
+export const GET = REST_GET(configPromise)
+export const POST = REST_POST(configPromise)
+export const DELETE = REST_DELETE(configPromise)
+export const PUT = REST_PUT(configPromise)
+export const OPTIONS = REST_OPTIONS(configPromise)
