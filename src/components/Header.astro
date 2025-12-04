@@ -3,38 +3,42 @@ import CartCounter from "./CartCounter";
 ---
 
 <header
-    class="sticky top-0 z-20 w-full bg-background-light/80 backdrop-blur-sm"
+    class="fixed top-0 z-40 w-full bg-background-light/90 backdrop-blur-md border-b border-white/10 shadow-sm transition-all duration-300"
+    id="main-header"
 >
     <div class="mx-auto flex max-w-7xl items-center justify-between px-8 py-4">
-        <a href="/" class="flex items-center gap-3 group">
-            <div
-                class="h-10 w-10 flex items-center justify-center rounded-full bg-primary/10 text-primary"
-            >
-                <i class="fa-solid fa-leaf text-xl"></i>
-            </div>
+        <a href="/" class="flex items-center gap-3 group relative z-50">
+            <img
+                src="/TESlogo.png"
+                alt="The Everyday Shop Logo"
+                class="h-10 w-10 object-contain group-hover:scale-105 transition-transform duration-300"
+            />
             <span
-                class="text-xl font-display font-medium tracking-wide group-hover:text-primary transition-colors"
+                class="hidden md:block text-xl font-display font-medium tracking-wide group-hover:text-primary transition-colors"
             >
                 The Everyday Shop
             </span>
         </a>
+
+        {/* Desktop Navigation */}
         <nav class="hidden items-center gap-8 md:flex">
             <a
-                class="text-sm font-medium leading-normal text-gray-500 hover:text-text-light transition-colors"
+                class="text-sm font-medium leading-normal text-gray-500 hover:text-primary transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full"
                 href="/shop">Shop</a
             >
             <a
-                class="text-sm font-medium leading-normal text-gray-500 hover:text-text-light transition-colors"
+                class="text-sm font-medium leading-normal text-gray-500 hover:text-primary transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full"
                 href="#">About</a
             >
             <a
-                class="text-sm font-medium leading-normal text-gray-500 hover:text-text-light transition-colors"
+                class="text-sm font-medium leading-normal text-gray-500 hover:text-primary transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full"
                 href="#">Contact</a
             >
         </nav>
-        <div class="flex items-center gap-4">
+
+        <div class="flex items-center gap-4 relative z-50">
             <button
-                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 text-text-light hover:bg-black/5 transition-colors"
+                class="hidden md:flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 text-text-light hover:bg-black/5 transition-colors"
             >
                 <span class="material-symbols-outlined">search</span>
             </button>
@@ -45,6 +49,134 @@ import CartCounter from "./CartCounter";
                 <span class="material-symbols-outlined">shopping_bag</span>
                 <CartCounter client:load />
             </a>
+
+            {/* Mobile Menu Button with Hamburger Animation */}
+            <button
+                id="mobile-menu-btn"
+                class="flex md:hidden flex-col items-center justify-center h-10 w-10 gap-1.5 text-text-light hover:bg-black/5 rounded-full transition-colors group"
+                aria-label="Open menu"
+            >
+                <span
+                    class="w-5 h-0.5 bg-current transition-transform duration-300 origin-center"
+                    id="hamburger-top"></span>
+                <span
+                    class="w-5 h-0.5 bg-current transition-opacity duration-300"
+                    id="hamburger-middle"></span>
+                <span
+                    class="w-5 h-0.5 bg-current transition-transform duration-300 origin-center"
+                    id="hamburger-bottom"></span>
+            </button>
+        </div>
+    </div>
+
+    {/* Mobile Menu Overlay */}
+    <div
+        id="mobile-menu"
+        class="fixed inset-0 z-40 transform translate-x-full transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) md:hidden"
+    >
+        <div
+            class="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-500"
+            id="mobile-menu-backdrop"
+        >
+        </div>
+        <div
+            class="absolute right-0 top-0 h-[100dvh] w-full bg-white shadow-2xl flex flex-col pt-20"
+        >
+            <nav class="flex-1 overflow-y-auto py-6 px-8">
+                <ul class="space-y-6">
+                    <li
+                        class="transform translate-x-4 opacity-0 transition-all duration-300 delay-100 menu-item"
+                    >
+                        <a
+                            class="flex items-center justify-between text-2xl font-display font-medium text-gray-900 hover:text-primary transition-colors group"
+                            href="/shop"
+                        >
+                            Shop
+                            <span
+                                class="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors"
+                                >arrow_forward</span
+                            >
+                        </a>
+                    </li>
+                    <li
+                        class="transform translate-x-4 opacity-0 transition-all duration-300 delay-200 menu-item"
+                    >
+                        <a
+                            class="flex items-center justify-between text-2xl font-display font-medium text-gray-900 hover:text-primary transition-colors group"
+                            href="#"
+                        >
+                            About
+                            <span
+                                class="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors"
+                                >arrow_forward</span
+                            >
+                        </a>
+                    </li>
+                    <li
+                        class="transform translate-x-4 opacity-0 transition-all duration-300 delay-300 menu-item"
+                    >
+                        <a
+                            class="flex items-center justify-between text-2xl font-display font-medium text-gray-900 hover:text-primary transition-colors group"
+                            href="#"
+                        >
+                            Contact
+                            <span
+                                class="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors"
+                                >arrow_forward</span
+                            >
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
 </header>
+
+<script>
+    const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+    const mobileMenu = document.getElementById("mobile-menu");
+    const backdrop = document.getElementById("mobile-menu-backdrop");
+    const hamburgerTop = document.getElementById("hamburger-top");
+    const hamburgerMiddle = document.getElementById("hamburger-middle");
+    const hamburgerBottom = document.getElementById("hamburger-bottom");
+    const menuItems = document.querySelectorAll(".menu-item");
+
+    let isMenuOpen = false;
+
+    function toggleMenu() {
+        isMenuOpen = !isMenuOpen;
+
+        // Toggle Menu Visibility
+        mobileMenu?.classList.toggle("translate-x-full");
+        document.body.classList.toggle("overflow-hidden");
+
+        // Animate Backdrop
+        if (isMenuOpen) {
+            backdrop?.classList.remove("opacity-0");
+            // Animate Items In
+            menuItems.forEach((item) => {
+                item.classList.remove("translate-x-4", "opacity-0");
+            });
+        } else {
+            backdrop?.classList.add("opacity-0");
+            // Reset Items
+            menuItems.forEach((item) => {
+                item.classList.add("translate-x-4", "opacity-0");
+            });
+        }
+
+        // Animate Hamburger
+        if (isMenuOpen) {
+            hamburgerTop?.classList.add("rotate-45", "translate-y-2");
+            hamburgerMiddle?.classList.add("opacity-0");
+            hamburgerBottom?.classList.add("-rotate-45", "-translate-y-2");
+        } else {
+            hamburgerTop?.classList.remove("rotate-45", "translate-y-2");
+            hamburgerMiddle?.classList.remove("opacity-0");
+            hamburgerBottom?.classList.remove("-rotate-45", "-translate-y-2");
+        }
+    }
+
+    mobileMenuBtn?.addEventListener("click", toggleMenu);
+    backdrop?.addEventListener("click", toggleMenu);
+</script>

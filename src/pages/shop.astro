@@ -5,15 +5,46 @@ import Footer from "../components/Footer.astro";
 import ProductCard from "../components/ProductCard.astro";
 import { getProducts } from "../data/products";
 
-const products = await getProducts();
+const allProducts = await getProducts();
 
-const categories = [
-    "All",
-    "Home Office",
-    "Kitchen & Dining",
-    "Living & Comfort",
-    "Personal Care",
-    "On the Go",
+// Get unique categories from products
+const uniqueCategories = [
+    ...new Set(allProducts.map((p) => p.category)),
+].sort();
+const categories = ["All", ...uniqueCategories];
+
+// Get search params
+const categoryParam = Astro.url.searchParams.get("category");
+const priceParam = Astro.url.searchParams.get("price");
+
+// Filter products
+let products = allProducts;
+
+if (categoryParam && categoryParam !== "All") {
+    products = products.filter(
+        (p) => p.category.toLowerCase() === categoryParam.toLowerCase(),
+    );
+}
+
+if (priceParam) {
+    const priceRanges = priceParam.split(",");
+    products = products.filter((p) => {
+        const price = Number(p.price);
+        return priceRanges.some((range) => {
+            if (range === "under-25") return price < 25;
+            if (range === "25-50") return price >= 25 && price <= 50;
+            if (range === "50-100") return price >= 50 && price <= 100;
+            if (range === "over-100") return price > 100;
+            return false;
+        });
+    });
+}
+
+const priceRanges = [
+    { label: "Under $25", value: "under-25" },
+    { label: "$25 - $50", value: "25-50" },
+    { label: "$50 - $100", value: "50-100" },
+    { label: "Over $100", value: "over-100" },
 ];
 ---
 
@@ -43,8 +74,18 @@ const categories = [
                                         categories.map((category) => (
                                             <li>
                                                 <a
-                                                    href="#"
-                                                    class="text-gray-600 hover:text-primary transition-colors block py-1"
+                                                    href={`/shop?category=${encodeURIComponent(category)}${priceParam ? `&price=${priceParam}` : ""}`}
+                                                    class:list={[
+                                                        "text-gray-600 hover:text-primary transition-colors block py-1",
+                                                        {
+                                                            "font-semibold text-primary":
+                                                                category ===
+                                                                    categoryParam ||
+                                                                (category ===
+                                                                    "All" &&
+                                                                    !categoryParam),
+                                                        },
+                                                    ]}
                                                 >
                                                     {category}
                                                 </a>
@@ -61,44 +102,34 @@ const categories = [
                                     Price Range
                                 </h4>
                                 <div class="space-y-2">
-                                    <label
-                                        class="flex items-center gap-2 text-gray-600"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            class="rounded border-gray-300 text-primary focus:ring-primary"
-                                        />
-                                        Under $25
-                                    </label>
-                                    <label
-                                        class="flex items-center gap-2 text-gray-600"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            class="rounded border-gray-300 text-primary focus:ring-primary"
-                                        />
-                                        $25 - $50
-                                    </label>
-                                    <label
-                                        class="flex items-center gap-2 text-gray-600"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            class="rounded border-gray-300 text-primary focus:ring-primary"
-                                        />
-                                        $50 - $100
-                                    </label>
-                                    <label
-                                        class="flex items-center gap-2 text-gray-600"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            class="rounded border-gray-300 text-primary focus:ring-primary"
-                                        />
-                                        Over $100
-                                    </label>
+                                    {
+                                        priceRanges.map((range) => (
+                                            <label class="flex items-center gap-2 text-gray-600 cursor-pointer hover:text-primary transition-colors">
+                                                <input
+                                                    type="checkbox"
+                                                    value={range.value}
+                                                    checked={priceParam
+                                                        ?.split(",")
+                                                        .includes(range.value)}
+                                                    class="price-filter rounded border-gray-300 text-primary focus:ring-primary"
+                                                />
+                                                {range.label}
+                                            </label>
+                                        ))
+                                    }
                                 </div>
                             </div>
+
+                            {
+                                (categoryParam || priceParam) && (
+                                    <a
+                                        href="/shop"
+                                        class="text-sm text-red-500 hover:text-red-700 underline decoration-red-500/30 hover:decoration-red-700/50 underline-offset-4 transition-all"
+                                    >
+                                        Clear all filters
+                                    </a>
+                                )
+                            }
                         </div>
                     </aside>
 
@@ -106,7 +137,15 @@ const categories = [
                     <div class="flex-1">
                         <div class="flex items-center justify-between mb-8">
                             <h1 class="font-display text-3xl font-semibold">
-                                All Products
+                                {
+                                    categoryParam && categoryParam !== "All"
+                                        ? categoryParam
+                                        : "All Products"
+                                }
+                                <span
+                                    class="text-lg text-gray-500 font-normal ml-2"
+                                    >({products.length})</span
+                                >
                             </h1>
                             <div class="flex items-center gap-2">
                                 <span class="text-sm text-gray-500"
@@ -123,21 +162,36 @@ const categories = [
                             </div>
                         </div>
 
-                        <div
-                            class="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3"
-                        >
-                            {
-                                products.map((product) => (
-                                    <ProductCard
-                                        id={product.id}
-                                        title={product.title}
-                                        price={product.price}
-                                        image={product.image}
-                                        category={product.category}
-                                    />
-                                ))
-                            }
-                        </div>
+                        {
+                            products.length > 0 ? (
+                                <div class="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+                                    {products.map((product) => (
+                                        <ProductCard
+                                            id={product.id}
+                                            title={product.title}
+                                            price={product.price}
+                                            image={product.image}
+                                            category={product.category}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div class="text-center py-20 bg-gray-50 rounded-lg">
+                                    <span class="material-symbols-outlined text-4xl text-gray-400 mb-4">
+                                        search_off
+                                    </span>
+                                    <p class="text-gray-500 text-lg">
+                                        No products found matching your filters.
+                                    </p>
+                                    <a
+                                        href="/shop"
+                                        class="text-primary font-medium hover:underline mt-2 inline-block"
+                                    >
+                                        Clear filters
+                                    </a>
+                                </div>
+                            )
+                        }
                     </div>
                 </div>
             </div>
@@ -145,3 +199,37 @@ const categories = [
         <Footer />
     </div>
 </Layout>
+
+<script>
+    document.addEventListener("change", (e) => {
+        const target = e.target;
+        if (
+            target &&
+            target instanceof HTMLInputElement &&
+            target.classList.contains("price-filter")
+        ) {
+            const url = new URL(window.location.href);
+            const params = new URLSearchParams(url.search);
+
+            const checkedValues = Array.from(
+                document.querySelectorAll(".price-filter"),
+            )
+                .filter((cb) => (cb as HTMLInputElement).checked)
+                .map((cb) => (cb as HTMLInputElement).value);
+
+            if (checkedValues.length > 0) {
+                params.set("price", checkedValues.join(","));
+            } else {
+                params.delete("price");
+            }
+
+            // Keep category if exists
+            const category = params.get("category");
+            if (category) {
+                params.set("category", category);
+            }
+
+            window.location.href = `${window.location.pathname}?${params.toString()}`;
+        }
+    });
+</script>
