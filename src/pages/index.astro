@@ -2,6 +2,11 @@
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import ProductCard from "../components/ProductCard.astro";
+import { getProducts } from "../data/products";
+
+const products = await getProducts();
+const featuredProducts = products.slice(0, 3);
 ---
 
 <Layout title="The Everyday Shop">
@@ -56,117 +61,17 @@ import Footer from "../components/Footer.astro";
 					<div
 						class="mt-12 grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3"
 					>
-						<div class="product-card group relative">
-							<div
-								class="aspect-square w-full overflow-hidden rounded-lg bg-gray-100"
-							>
-								<img
-									alt="A ceramic mug on a saucer"
-									class="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
-									src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwvzvDrCxXsut7WOsVil5qmVHv0t7-7ijbQQeKQHerweKVBI2CZryrD2Y0o-vfalvYJvJHlzASeINoMF5MT3MXp9mlGe2jjHUr8NmNuPVPUwn1OzNvGczqmJjyX8PKHBAmY427B1ppNWtfE5omg3jVeDveEPbG3xDbKoPwWsqgwz_IMc_SJ9IMfbN0yOblsdmomtlClFNbzKK_UJEZUK8e_74BtI7mvSL2oZJbcHBvgaJ1SKQaBaWFm4ClNNsseKUHWFZzcPucXtM"
+						{
+							featuredProducts.map((product) => (
+								<ProductCard
+									id={product.id}
+									title={product.title}
+									price={product.price}
+									image={product.image}
+									category={product.category}
 								/>
-							</div>
-							<div class="mt-4 flex justify-between">
-								<div>
-									<h3
-										class="text-base font-medium text-text-light"
-									>
-										<a href="#"
-											><span
-												aria-hidden="true"
-												class="absolute inset-0"
-											></span>Ceramic Mug</a
-										>
-									</h3>
-								</div>
-								<p
-									class="text-base font-medium text-text-light"
-								>
-									$25.00
-								</p>
-							</div>
-							<button
-								class="add-to-cart absolute bottom-24 right-4 flex items-center justify-center h-10 w-10 rounded-full bg-background-light/70 backdrop-blur-sm text-text-light hover:bg-background-light"
-							>
-								<span class="material-symbols-outlined"
-									>add</span
-								>
-							</button>
-						</div>
-						<div class="product-card group relative">
-							<div
-								class="aspect-square w-full overflow-hidden rounded-lg bg-gray-100"
-							>
-								<img
-									alt="A wooden desk organizer with pens and a notebook"
-									class="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
-									src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4lDpDR0o-48QSx_X_JFT4iiHs1v3E6xO_XDij3O27F0nY6LEpnE_7W37O91xvSIPkY4lZ1fQHFDsnMKgLt3t9K0Hadna_hzUdGnxoN0Ej--34Pq-0Daebog-lPRC8KfUmcwtvNIs47wiQ48312sM3lw4ktObgYm8aKq2HdErPjy_8fW9_rbpHPQOrJSHo6ne8EcpRt4GZ12K49LgrAYZL41NSvxqNfxjVgTUOaJCqTgGusyeQWqWvBCKzwErDCZQ5GNYyhaTCz28"
-								/>
-							</div>
-							<div class="mt-4 flex justify-between">
-								<div>
-									<h3
-										class="text-base font-medium text-text-light"
-									>
-										<a href="#"
-											><span
-												aria-hidden="true"
-												class="absolute inset-0"
-											></span>Desk Organizer</a
-										>
-									</h3>
-								</div>
-								<p
-									class="text-base font-medium text-text-light"
-								>
-									$45.00
-								</p>
-							</div>
-							<button
-								class="add-to-cart absolute bottom-24 right-4 flex items-center justify-center h-10 w-10 rounded-full bg-background-light/70 backdrop-blur-sm text-text-light hover:bg-background-light"
-							>
-								<span class="material-symbols-outlined"
-									>add</span
-								>
-							</button>
-						</div>
-						<div class="product-card group relative">
-							<div
-								class="aspect-square w-full overflow-hidden rounded-lg bg-gray-100"
-							>
-								<img
-									alt="A linen throw blanket draped over a chair"
-									class="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
-									src="https://lh3.googleusercontent.com/aida-public/AB6AXuB43RZeSoTcCYKU-WdtSJMcOA31zdEdNUeOMvinUaAZpo8M8USuY-0-ltBbtBr94wV_HxStEEZZVZXx5rEtzgNtabbm20OTgvxPkB8YzP6HEy1e2-4qE_Nn-FscSyxo16KrKpp2eCP5t6yR_iOP6UYJF_z6qlH5myzYAKXvPDW_ArloQHbv1sdoozHpPYB9QROU02oOyTkCrEesB-nhuTok_Hi8yN2pYsre8-RSy4Gljn_S0MwmformFJUFAoaDS77cgfyqbzajzUc"
-								/>
-							</div>
-							<div class="mt-4 flex justify-between">
-								<div>
-									<h3
-										class="text-base font-medium text-text-light"
-									>
-										<a href="#"
-											><span
-												aria-hidden="true"
-												class="absolute inset-0"
-											></span>Linen Throw Blanket</a
-										>
-									</h3>
-								</div>
-								<p
-									class="text-base font-medium text-text-light"
-								>
-									$80.00
-								</p>
-							</div>
-							<button
-								class="add-to-cart absolute bottom-24 right-4 flex items-center justify-center h-10 w-10 rounded-full bg-background-light/70 backdrop-blur-sm text-text-light hover:bg-background-light"
-							>
-								<span class="material-symbols-outlined"
-									>add</span
-								>
-							</button>
-						</div>
+							))
+						}
 					</div>
 				</section>
 				<section class="bg-gray-100">

@@ -1,0 +1,45 @@
+---
+interface Props {
+    id: string;
+    title: string;
+    price: number;
+    image: string;
+    category?: string;
+}
+
+import AddToCartButton from "./AddToCartButton";
+
+const { id, title, price, image, category } = Astro.props;
+---
+
+<div class="product-card group relative">
+    <div class="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
+        <img
+            src={image}
+            alt={title}
+            class="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+        />
+    </div>
+    <div class="mt-4 flex justify-between">
+        <div>
+            <h3 class="text-base font-medium text-text-light">
+                <a href={`/products/${id}`}>
+                    <span aria-hidden="true" class="absolute inset-0"></span>
+                    {title}
+                </a>
+            </h3>
+            {category && <p class="mt-1 text-sm text-gray-500">{category}</p>}
+        </div>
+        <p class="text-base font-medium text-text-light">${price.toFixed(2)}</p>
+    </div>
+    <AddToCartButton
+        client:visible
+        product={{
+            title,
+            price,
+            image,
+            id: title,
+            category: category || "General",
+        } as any}
+    />
+</div>

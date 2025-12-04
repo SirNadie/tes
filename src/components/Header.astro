@@ -1,32 +1,27 @@
 ---
-
+import CartCounter from "./CartCounter";
 ---
 
 <header
     class="sticky top-0 z-20 w-full bg-background-light/80 backdrop-blur-sm"
 >
     <div class="mx-auto flex max-w-7xl items-center justify-between px-8 py-4">
-        <div class="flex items-center gap-3">
-            <div class="size-6 text-primary">
-                <svg
-                    class="h-full w-full"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path
-                        d="M12.65,1.61C13.01,1.24 13.64,1.24 14,1.61C16.5,4.1 19.3,6.89 22.39,10.01C22.76,10.38 22.76,11.01 22.39,11.38C19.3,14.47 16.5,17.26 14,19.76C13.64,20.13 13.01,20.13 12.65,19.76L3,10.11V3H9.89L12.65,1.61M11.99,14.12C12.32,14.12 12.59,13.85 12.59,13.52C12.59,11.54 14.21,9.92 16.19,9.92C16.52,9.92 16.79,9.65 16.79,9.32C16.79,8.99 16.52,8.72 16.19,8.72C13.56,8.72 11.39,10.89 11.39,13.52C11.39,13.85 11.66,14.12 11.99,14.12Z"
-                    ></path>
-                </svg>
+        <a href="/" class="flex items-center gap-3 group">
+            <div
+                class="h-10 w-10 flex items-center justify-center rounded-full bg-primary/10 text-primary"
+            >
+                <i class="fa-solid fa-leaf text-xl"></i>
             </div>
-            <h2 class="text-xl font-display font-medium tracking-wide">
+            <span
+                class="text-xl font-display font-medium tracking-wide group-hover:text-primary transition-colors"
+            >
                 The Everyday Shop
-            </h2>
-        </div>
+            </span>
+        </a>
         <nav class="hidden items-center gap-8 md:flex">
             <a
                 class="text-sm font-medium leading-normal text-gray-500 hover:text-text-light transition-colors"
-                href="#">Shop</a
+                href="/shop">Shop</a
             >
             <a
                 class="text-sm font-medium leading-normal text-gray-500 hover:text-text-light transition-colors"
@@ -43,15 +38,13 @@
             >
                 <span class="material-symbols-outlined">search</span>
             </button>
-            <button
+            <a
+                href="/checkout"
                 class="relative flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 text-text-light hover:bg-black/5 transition-colors"
             >
                 <span class="material-symbols-outlined">shopping_bag</span>
-                <span
-                    class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-background-light"
-                    >2</span
-                >
-            </button>
+                <CartCounter client:load />
+            </a>
         </div>
     </div>
 </header>

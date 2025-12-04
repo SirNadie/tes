@@ -1,0 +1,147 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import ProductCard from "../components/ProductCard.astro";
+import { getProducts } from "../data/products";
+
+const products = await getProducts();
+
+const categories = [
+    "All",
+    "Home Office",
+    "Kitchen & Dining",
+    "Living & Comfort",
+    "Personal Care",
+    "On the Go",
+];
+---
+
+<Layout title="Shop | The Everyday Shop">
+    <div
+        class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden"
+    >
+        <Header />
+        <main class="flex-1">
+            <div class="mx-auto max-w-7xl px-8 py-12">
+                <div class="flex flex-col md:flex-row gap-12">
+                    <!-- Sidebar -->
+                    <aside class="w-full md:w-64 flex-shrink-0">
+                        <div class="sticky top-24">
+                            <h3 class="font-display text-xl font-semibold mb-6">
+                                Filters
+                            </h3>
+
+                            <div class="mb-8">
+                                <h4
+                                    class="font-medium mb-3 text-sm uppercase tracking-wider text-gray-500"
+                                >
+                                    Categories
+                                </h4>
+                                <ul class="space-y-2">
+                                    {
+                                        categories.map((category) => (
+                                            <li>
+                                                <a
+                                                    href="#"
+                                                    class="text-gray-600 hover:text-primary transition-colors block py-1"
+                                                >
+                                                    {category}
+                                                </a>
+                                            </li>
+                                        ))
+                                    }
+                                </ul>
+                            </div>
+
+                            <div class="mb-8">
+                                <h4
+                                    class="font-medium mb-3 text-sm uppercase tracking-wider text-gray-500"
+                                >
+                                    Price Range
+                                </h4>
+                                <div class="space-y-2">
+                                    <label
+                                        class="flex items-center gap-2 text-gray-600"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            class="rounded border-gray-300 text-primary focus:ring-primary"
+                                        />
+                                        Under $25
+                                    </label>
+                                    <label
+                                        class="flex items-center gap-2 text-gray-600"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            class="rounded border-gray-300 text-primary focus:ring-primary"
+                                        />
+                                        $25 - $50
+                                    </label>
+                                    <label
+                                        class="flex items-center gap-2 text-gray-600"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            class="rounded border-gray-300 text-primary focus:ring-primary"
+                                        />
+                                        $50 - $100
+                                    </label>
+                                    <label
+                                        class="flex items-center gap-2 text-gray-600"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            class="rounded border-gray-300 text-primary focus:ring-primary"
+                                        />
+                                        Over $100
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Product Grid -->
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-8">
+                            <h1 class="font-display text-3xl font-semibold">
+                                All Products
+                            </h1>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500"
+                                    >Sort by:</span
+                                >
+                                <select
+                                    class="text-sm border-none bg-transparent font-medium text-gray-900 focus:ring-0 cursor-pointer"
+                                >
+                                    <option>Featured</option>
+                                    <option>Newest</option>
+                                    <option>Price: Low to High</option>
+                                    <option>Price: High to Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div
+                            class="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3"
+                        >
+                            {
+                                products.map((product) => (
+                                    <ProductCard
+                                        id={product.id}
+                                        title={product.title}
+                                        price={product.price}
+                                        image={product.image}
+                                        category={product.category}
+                                    />
+                                ))
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <Footer />
+    </div>
+</Layout>
