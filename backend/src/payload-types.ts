@@ -72,6 +72,7 @@ export interface Config {
     products: Product;
     orders: Order;
     categories: Category;
+    subscribers: Subscriber;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -182,6 +184,14 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Available quantity in stock
+   */
+  stock?: number | null;
+  /**
+   * Show on homepage featured section
+   */
+  featured?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -220,9 +230,23 @@ export interface Order {
   payment: {
     method: 'cod' | 'online';
     transactionId?: string | null;
-    status?: ('pending_payment' | 'awaiting_proof') | null;
+    status?: ('pending_payment' | 'awaiting_proof' | 'verified') | null;
   };
-  status?: ('pending' | 'verifying' | 'paid' | 'shipped') | null;
+  status?: ('pending' | 'verifying' | 'paid' | 'shipped' | 'delivered' | 'cancelled') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Newsletter subscribers
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers".
+ */
+export interface Subscriber {
+  id: number;
+  email: string;
+  subscribedAt?: string | null;
+  active?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -269,6 +293,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'categories';
         value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'subscribers';
+        value: number | Subscriber;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -368,6 +396,8 @@ export interface ProductsSelect<T extends boolean = true> {
         feature?: T;
         id?: T;
       };
+  stock?: T;
+  featured?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -411,6 +441,17 @@ export interface OrdersSelect<T extends boolean = true> {
  */
 export interface CategoriesSelect<T extends boolean = true> {
   name?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers_select".
+ */
+export interface SubscribersSelect<T extends boolean = true> {
+  email?: T;
+  subscribedAt?: T;
+  active?: T;
   updatedAt?: T;
   createdAt?: T;
 }

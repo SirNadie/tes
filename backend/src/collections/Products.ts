@@ -18,6 +18,7 @@ export const Products: CollectionConfig = {
             name: 'price',
             type: 'number',
             required: true,
+            min: 0,
         },
         {
             name: 'image',
@@ -43,6 +44,23 @@ export const Products: CollectionConfig = {
                     type: 'text',
                 },
             ],
+        },
+        {
+            name: 'stock',
+            type: 'number',
+            defaultValue: 0,
+            min: 0,
+            admin: {
+                description: 'Available quantity in stock',
+            },
+        },
+        {
+            name: 'featured',
+            type: 'checkbox',
+            defaultValue: false,
+            admin: {
+                description: 'Show on homepage featured section',
+            },
         },
     ],
 }

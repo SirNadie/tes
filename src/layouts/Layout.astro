@@ -1,38 +1,61 @@
 ---
 import "../styles/global.css";
+import type { SEOProps } from "../types";
 
-interface Props {
-	title: string;
-}
+interface Props extends SEOProps {}
 
-const { title } = Astro.props;
+const {
+	title,
+	description = "The Everyday Shop - Curated essentials for a mindful lifestyle. Quality, function, and design in every product.",
+	image = "/TESlogo.png",
+	url = Astro.url.href,
+} = Astro.props;
+
+const siteUrl =
+	Astro.site || new URL(Astro.url.pathname, "https://theeverydayshop.com");
+const fullImageUrl = image.startsWith("http")
+	? image
+	: new URL(image, siteUrl).href;
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content="Astro description" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/png" href="/TESlogo.png" />
 		<meta name="generator" content={Astro.generator} />
+
+		<!-- Primary Meta Tags -->
 		<title>{title}</title>
+		<meta name="title" content={title} />
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={url} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={fullImageUrl} />
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content={url} />
+		<meta property="twitter:title" content={title} />
+		<meta property="twitter:description" content={description} />
+		<meta property="twitter:image" content={fullImageUrl} />
+
+		<!-- Fonts - Preconnect for performance -->
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
 			href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600;700&display=swap"
 			rel="stylesheet"
 		/>
+		<!-- Material Symbols - optimized with display swap -->
 		<link
-			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
 			rel="stylesheet"
-		/>
-		<link
-			rel="stylesheet"
-			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-			integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-			crossorigin="anonymous"
-			referrerpolicy="no-referrer"
 		/>
 	</head>
 	<body class="bg-background-light font-sans text-text-light pt-20">

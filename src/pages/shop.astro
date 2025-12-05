@@ -17,16 +17,33 @@ const categories = ["All", ...uniqueCategories];
 // Get search params
 const categoryParam = Astro.url.searchParams.get("category");
 const priceParam = Astro.url.searchParams.get("price");
+const searchParam = Astro.url.searchParams.get("search");
+const sortParam = Astro.url.searchParams.get("sort") || "featured";
+const pageParam = parseInt(Astro.url.searchParams.get("page") || "1");
 
 // Filter products
 let products = allProducts;
 
+// Search filter
+if (searchParam && searchParam.trim()) {
+    const searchLower = searchParam.toLowerCase();
+    products = products.filter(
+        (p) =>
+            p.title.toLowerCase().includes(searchLower) ||
+            p.category.toLowerCase().includes(searchLower) ||
+            (p.description &&
+                p.description.toLowerCase().includes(searchLower)),
+    );
+}
+
+// Category filter
 if (categoryParam && categoryParam !== "All") {
     products = products.filter(
         (p) => p.category.toLowerCase() === categoryParam.toLowerCase(),
     );
 }
 
+// Price filter
 if (priceParam) {
     const priceRanges = priceParam.split(",");
     products = products.filter((p) => {
@@ -41,21 +58,95 @@ if (priceParam) {
     });
 }
 
+// Sort products
+switch (sortParam) {
+    case "price-asc":
+        products = [...products].sort((a, b) => a.price - b.price);
+        break;
+    case "price-desc":
+        products = [...products].sort((a, b) => b.price - a.price);
+        break;
+    case "name-asc":
+        products = [...products].sort((a, b) => a.title.localeCompare(b.title));
+        break;
+    case "newest":
+        // Reverse order for "newest" (assuming higher IDs are newer)
+        products = [...products].reverse();
+        break;
+    case "featured":
+    default:
+        // Default order (original order from API)
+        break;
+}
+
+// Pagination
+const ITEMS_PER_PAGE = 12;
+const totalItems = products.length;
+const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+const currentPage = Math.max(1, Math.min(pageParam, totalPages || 1));
+const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+const paginatedProducts = products.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE,
+);
+
 const priceRanges = [
     { label: "Under $25", value: "under-25" },
     { label: "$25 - $50", value: "25-50" },
     { label: "$50 - $100", value: "50-100" },
     { label: "Over $100", value: "over-100" },
 ];
+
+// Helper function to build URL with params
+function buildUrl(params: Record<string, string | null>) {
+    const url = new URL(Astro.url);
+    Object.entries(params).forEach(([key, value]) => {
+        if (value === null) {
+            url.searchParams.delete(key);
+        } else {
+            url.searchParams.set(key, value);
+        }
+    });
+    // Reset to page 1 when changing filters
+    if (!params.hasOwnProperty("page")) {
+        url.searchParams.delete("page");
+    }
+    return url.pathname + url.search;
+}
 ---
 
-<Layout title="Shop | The Everyday Shop">
+<Layout
+    title={searchParam
+        ? `Search: ${searchParam} | The Everyday Shop`
+        : "Shop | The Everyday Shop"}
+    description="Browse our curated collection of everyday essentials. Quality products for your home, office, and lifestyle."
+>
     <div
         class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden"
     >
         <Header />
         <main class="flex-1">
             <div class="mx-auto max-w-7xl px-8 py-12">
+                {/* Search Results Header */}
+                {
+                    searchParam && (
+                        <div class="mb-8 pb-6 border-b">
+                            <p class="text-gray-500">
+                                Search results for:{" "}
+                                <span class="font-medium text-gray-900">
+                                    "{searchParam}"
+                                </span>
+                            </p>
+                            <a
+                                href="/shop"
+                                class="text-sm text-primary hover:underline mt-1 inline-block"
+                            >
+                                Clear search
+                            </a>
+                        </div>
+                    )
+                }
+
                 <div class="flex flex-col md:flex-row gap-12">
                     <!-- Sidebar -->
                     <aside class="w-full md:w-64 flex-shrink-0">
@@ -75,7 +166,12 @@ const priceRanges = [
                                         categories.map((category) => (
                                             <li>
                                                 <a
-                                                    href={`/shop?category=${encodeURIComponent(category)}${priceParam ? `&price=${priceParam}` : ""}`}
+                                                    href={buildUrl({
+                                                        category:
+                                                            category === "All"
+                                                                ? null
+                                                                : category,
+                                                    })}
                                                     class:list={[
                                                         "text-gray-600 hover:text-primary transition-colors block py-1",
                                                         {
@@ -122,7 +218,9 @@ const priceRanges = [
                             </div>
 
                             {
-                                (categoryParam || priceParam) && (
+                                (categoryParam ||
+                                    priceParam ||
+                                    searchParam) && (
                                     <a
                                         href="/shop"
                                         class="text-sm text-red-500 hover:text-red-700 underline decoration-red-500/30 hover:decoration-red-700/50 underline-offset-4 transition-all"
@@ -136,12 +234,17 @@ const priceRanges = [
 
                     <!-- Product Grid -->
                     <div class="flex-1">
-                        <div class="flex items-center justify-between mb-8">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4"
+                        >
                             <h1 class="font-display text-3xl font-semibold">
                                 {
-                                    categoryParam && categoryParam !== "All"
-                                        ? categoryParam
-                                        : "All Products"
+                                    searchParam
+                                        ? `Results`
+                                        : categoryParam &&
+                                            categoryParam !== "All"
+                                          ? categoryParam
+                                          : "All Products"
                                 }
                                 <span
                                     class="ml-3 inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
@@ -155,29 +258,112 @@ const priceRanges = [
                                     >Sort by:</span
                                 >
                                 <select
+                                    id="sort-select"
                                     class="text-sm border-none bg-transparent font-medium text-gray-900 focus:ring-0 cursor-pointer"
                                 >
-                                    <option>Featured</option>
-                                    <option>Newest</option>
-                                    <option>Price: Low to High</option>
-                                    <option>Price: High to Low</option>
+                                    <option
+                                        value="featured"
+                                        selected={sortParam === "featured"}
+                                        >Featured</option
+                                    >
+                                    <option
+                                        value="newest"
+                                        selected={sortParam === "newest"}
+                                        >Newest</option
+                                    >
+                                    <option
+                                        value="price-asc"
+                                        selected={sortParam === "price-asc"}
+                                        >Price: Low to High</option
+                                    >
+                                    <option
+                                        value="price-desc"
+                                        selected={sortParam === "price-desc"}
+                                        >Price: High to Low</option
+                                    >
+                                    <option
+                                        value="name-asc"
+                                        selected={sortParam === "name-asc"}
+                                        >Name: A to Z</option
+                                    >
                                 </select>
                             </div>
                         </div>
 
                         {
-                            products.length > 0 ? (
-                                <div class="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-                                    {products.map((product) => (
-                                        <ProductCard
-                                            id={product.id}
-                                            title={product.title}
-                                            price={product.price}
-                                            image={product.image}
-                                            category={product.category}
-                                        />
-                                    ))}
-                                </div>
+                            paginatedProducts.length > 0 ? (
+                                <>
+                                    <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-3">
+                                        {paginatedProducts.map((product) => (
+                                            <ProductCard
+                                                id={product.id}
+                                                title={product.title}
+                                                price={product.price}
+                                                image={product.image}
+                                                category={product.category}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    {/* Pagination */}
+                                    {totalPages > 1 && (
+                                        <nav
+                                            class="flex items-center justify-center gap-2 mt-12"
+                                            aria-label="Pagination"
+                                        >
+                                            {currentPage > 1 && (
+                                                <a
+                                                    href={buildUrl({
+                                                        page: String(
+                                                            currentPage - 1,
+                                                        ),
+                                                    })}
+                                                    class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-1"
+                                                >
+                                                    <span class="material-symbols-outlined text-lg">
+                                                        chevron_left
+                                                    </span>
+                                                    Prev
+                                                </a>
+                                            )}
+
+                                            {Array.from(
+                                                { length: totalPages },
+                                                (_, i) => i + 1,
+                                            ).map((page) => (
+                                                <a
+                                                    href={buildUrl({
+                                                        page: String(page),
+                                                    })}
+                                                    class:list={[
+                                                        "w-10 h-10 flex items-center justify-center rounded-lg transition-colors",
+                                                        page === currentPage
+                                                            ? "bg-primary text-white font-medium"
+                                                            : "border border-gray-300 text-gray-700 hover:bg-gray-50",
+                                                    ]}
+                                                >
+                                                    {page}
+                                                </a>
+                                            ))}
+
+                                            {currentPage < totalPages && (
+                                                <a
+                                                    href={buildUrl({
+                                                        page: String(
+                                                            currentPage + 1,
+                                                        ),
+                                                    })}
+                                                    class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-1"
+                                                >
+                                                    Next
+                                                    <span class="material-symbols-outlined text-lg">
+                                                        chevron_right
+                                                    </span>
+                                                </a>
+                                            )}
+                                        </nav>
+                                    )}
+                                </>
                             ) : (
                                 <div class="text-center py-20 bg-gray-50 rounded-lg">
                                     <span class="material-symbols-outlined text-4xl text-gray-400 mb-4">
@@ -204,6 +390,7 @@ const priceRanges = [
 </Layout>
 
 <script>
+    // Price filter functionality
     document.addEventListener("change", (e) => {
         const target = e.target;
         if (
@@ -226,13 +413,30 @@ const priceRanges = [
                 params.delete("price");
             }
 
-            // Keep category if exists
-            const category = params.get("category");
-            if (category) {
-                params.set("category", category);
-            }
+            // Reset to page 1
+            params.delete("page");
 
             window.location.href = `${window.location.pathname}?${params.toString()}`;
         }
+    });
+
+    // Sort functionality
+    const sortSelect = document.getElementById(
+        "sort-select",
+    ) as HTMLSelectElement;
+    sortSelect?.addEventListener("change", () => {
+        const url = new URL(window.location.href);
+        const params = new URLSearchParams(url.search);
+
+        if (sortSelect.value === "featured") {
+            params.delete("sort");
+        } else {
+            params.set("sort", sortSelect.value);
+        }
+
+        // Reset to page 1
+        params.delete("page");
+
+        window.location.href = `${window.location.pathname}?${params.toString()}`;
     });
 </script>

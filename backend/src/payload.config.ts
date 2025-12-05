@@ -11,6 +11,7 @@ import { Media } from './collections/Media'
 import { Products } from './collections/Products'
 import { Orders } from './collections/Orders'
 import { Categories } from './collections/Categories'
+import { Subscribers } from './collections/Subscribers'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -22,7 +23,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Products, Orders, Categories],
+  collections: [Users, Media, Products, Orders, Categories, Subscribers],
   cors: ['http://localhost:4321', 'http://localhost:3000'],
   csrf: ['http://localhost:4321', 'http://localhost:3000'],
   editor: lexicalEditor(),

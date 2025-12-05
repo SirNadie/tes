@@ -3,9 +3,23 @@ import type { CollectionConfig } from 'payload'
 export const Orders: CollectionConfig = {
     slug: 'orders',
     access: {
+        // Anyone can create orders (checkout)
         create: () => true,
-        read: () => true,
-        update: () => true,
+        // Only admins can read orders (in production you'd check user ownership)
+        read: ({ req: { user } }) => {
+            if (user) return true;
+            return false;
+        },
+        // Only admins can update orders
+        update: ({ req: { user } }) => {
+            if (user) return true;
+            return false;
+        },
+        // Only admins can delete
+        delete: ({ req: { user } }) => {
+            if (user) return true;
+            return false;
+        },
     },
     fields: [
         {
@@ -14,7 +28,7 @@ export const Orders: CollectionConfig = {
             fields: [
                 {
                     name: 'product',
-                    type: 'text', // Changed from relationship to text to support hardcoded IDs
+                    type: 'text',
                     required: true,
                 },
                 {
@@ -66,7 +80,7 @@ export const Orders: CollectionConfig = {
                 {
                     name: 'status',
                     type: 'select',
-                    options: ['pending_payment', 'awaiting_proof'],
+                    options: ['pending_payment', 'awaiting_proof', 'verified'],
                     defaultValue: 'pending_payment',
                 },
             ],
@@ -79,13 +93,15 @@ export const Orders: CollectionConfig = {
                 { label: 'Verifying', value: 'verifying' },
                 { label: 'Paid', value: 'paid' },
                 { label: 'Shipped', value: 'shipped' },
+                { label: 'Delivered', value: 'delivered' },
+                { label: 'Cancelled', value: 'cancelled' },
             ],
             defaultValue: 'pending',
         },
     ],
     hooks: {
         beforeChange: [
-            ({ data, req, operation }) => {
+            ({ data, operation }) => {
                 if (operation === 'create') {
                     if (data.payment?.method === 'online' && data.payment?.transactionId) {
                         data.status = 'verifying';
