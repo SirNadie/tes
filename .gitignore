@@ -1,63 +1,57 @@
-# build output
-dist/
-# generated types
-.astro/
-
-# dependencies
-node_modules/
-
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-
-# environment variables
-.env
-.env.production
-
-# macOS-specific files
-.DS_Store
-
-# jetbrains setting folder
-.idea/
-
-# VS Code
-.vscode/
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Linux
-.DS_Store
-*~
-
-# Local env files
-.env*
-!.env.example
-
-# Astro
-.astro/
-
-# Build output
-dist/
-build/
-
 # Dependencies
 node_modules/
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Production
+*.tsbuildinfo
+
+# Payload CMS
+media/
+*.db
+*.sqlite
+backend.db
+
+# Environment
+.env
+.env.*
+!.env.example
 
 # Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+*.log
 
-# OS metadata
+# Testing
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-*
+
+# OS
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~
 
-# Optional: Ignore backend if it's a separate repo (it's not here, but good to know)
-# backend/
+# Misc
+*.pem
+.vercel
