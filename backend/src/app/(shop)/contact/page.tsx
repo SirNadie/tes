@@ -4,7 +4,7 @@ import ContactForm from '@/components/ContactForm'
 
 export const metadata = {
     title: 'Contact Us',
-    description: 'Get in touch with The Everyday Shop. We\'re here to help.',
+    description: 'Get in touch with The Everyday Shop. We\'d love to hear from you.',
 }
 
 export default function ContactPage() {

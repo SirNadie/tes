@@ -4,6 +4,11 @@ import ProductCard from '@/components/ProductCard'
 import SortDropdown from '@/components/SortDropdown'
 import { getProducts, getCategories } from '@/lib/products'
 
+export const metadata = {
+    title: 'Shop',
+    description: 'Browse our curated collection of premium products at The Everyday Shop.',
+}
+
 interface ShopPageProps {
     searchParams: Promise<{
         category?: string

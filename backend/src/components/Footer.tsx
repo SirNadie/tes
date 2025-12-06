@@ -48,7 +48,7 @@ export default function Footer() {
                                     className="text-gray-600 hover:text-primary transition-colors"
                                     href="/shop?sort=featured"
                                 >
-                                    Best Sellers
+                                    Featured
                                 </Link>
                             </li>
                         </ul>

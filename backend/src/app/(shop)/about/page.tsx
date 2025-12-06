@@ -4,7 +4,7 @@ import Footer from '@/components/Footer'
 
 export const metadata = {
     title: 'About Us',
-    description: 'Learn about The Everyday Shop and our mission to bring quality essentials to your daily life.',
+    description: 'Learn about The Everyday Shop - our story, values, and commitment to quality.',
 }
 
 export default function AboutPage() {

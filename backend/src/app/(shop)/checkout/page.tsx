@@ -4,7 +4,7 @@ import CheckoutForm from '@/components/CheckoutForm'
 
 export const metadata = {
     title: 'Checkout',
-    description: 'Complete your order at The Everyday Shop.',
+    description: 'Complete your purchase at The Everyday Shop.',
 }
 
 export default function CheckoutPage() {

@@ -63,9 +63,8 @@ export default function CheckoutForm() {
             })
 
             if (res.ok) {
-                alert('Order submitted successfully!')
                 clearCart()
-                window.location.href = '/'
+                window.location.href = '/order-confirmation'
             } else {
                 const data = await res.json()
                 alert(data.message || 'Failed to submit order. Please try again.')

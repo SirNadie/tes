@@ -24,7 +24,6 @@ export default function ProductCard({
     const addItem = useCartStore((state) => state.addItem)
 
     const handleAddToCart = (e: React.MouseEvent) => {
-        console.log('Add to Cart clicked!', { id, title, price })
         e.preventDefault()
         e.stopPropagation()
 

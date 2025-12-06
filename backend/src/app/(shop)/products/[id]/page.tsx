@@ -1,8 +1,10 @@
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AddToCartButtonFull from '@/components/AddToCartButtonFull'
+import Breadcrumbs from '@/components/Breadcrumbs'
 import { getProductById, getProducts } from '@/lib/products'
 
 interface ProductPageProps {
@@ -14,6 +16,20 @@ export async function generateStaticParams() {
     return products.map((product) => ({
         id: product.id,
     }))
+}
+
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+    const { id } = await params
+    const product = await getProductById(id)
+
+    if (!product) {
+        return { title: 'Product Not Found' }
+    }
+
+    return {
+        title: product.title,
+        description: product.description || `Shop ${product.title} at The Everyday Shop`,
+    }
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
@@ -30,6 +46,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <Header />
                 <main className="flex-1 pt-20">
                     <section className="mx-auto max-w-7xl px-8 py-12">
+                        <Breadcrumbs
+                            items={[
+                                { label: 'Shop', href: '/shop' },
+                                { label: product.title },
+                            ]}
+                        />
                         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
                             {/* Product Image */}
                             <div className="aspect-square overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100">
