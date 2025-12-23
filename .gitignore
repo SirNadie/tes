@@ -55,3 +55,11 @@ Desktop.ini
 # Misc
 *.pem
 .vercel
+
+# Backend (Python/FastAPI)
+backend/venv/
+backend/__pycache__/
+backend/*.py[cod]
+backend/*.db
+venv/
+__pycache__/

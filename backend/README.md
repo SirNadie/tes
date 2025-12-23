@@ -1,67 +1,65 @@
-# Payload Blank Template
+# NexusStore Backend API
 
-This template comes configured with the bare minimum to get started on anything you need.
+FastAPI backend for the NexusStore e-commerce dashboard.
 
-## Quick start
+## Setup
 
-This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
+1. Create a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-## Quick Start - local setup
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-To spin up this template locally, follow these steps:
+3. Copy `.env.example` to `.env` and configure:
+```bash
+cp .env.example .env
+```
 
-### Clone
+4. Run the server:
+```bash
+uvicorn app.main:app --reload
+```
 
-After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+The API will be available at `http://localhost:8000`
 
-### Development
+## API Documentation
 
-1. First [clone the repo](#clone) if you have not done so already
-2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URI` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
 
-3. `pnpm install && pnpm dev` to install dependencies and start the dev server
-4. open `http://localhost:3000` to open the app in your browser
+## API Endpoints
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+### Authentication
+- `POST /api/auth/login` - Login and get JWT token
+- `POST /api/auth/register` - Register new admin user
+- `GET /api/auth/me` - Get current user info
 
-#### Docker (Optional)
+### Products
+- `GET /api/products/` - List products
+- `GET /api/products/{id}` - Get product details
+- `POST /api/products/` - Create product (auth required)
+- `PATCH /api/products/{id}` - Update product (auth required)
+- `DELETE /api/products/{id}` - Delete product (auth required)
 
-If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
+### Orders
+- `GET /api/orders/` - List orders (auth required)
+- `GET /api/orders/{id}` - Get order details (auth required)
+- `POST /api/orders/` - Create order
+- `PATCH /api/orders/{id}` - Update order (auth required)
 
-To do so, follow these steps:
+### Customers
+- `GET /api/customers/` - List customers (auth required)
+- `GET /api/customers/{id}` - Get customer details (auth required)
+- `POST /api/customers/` - Create customer
+- `PATCH /api/customers/{id}` - Update customer (auth required)
+- `DELETE /api/customers/{id}` - Delete customer (auth required)
 
-- Modify the `MONGODB_URI` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
-- Modify the `docker-compose.yml` file's `MONGODB_URI` to match the above `<dbname>`
-- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
-
-## How it works
-
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
-
-### Collections
-
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
-
-- #### Users (Authentication)
-
-  Users are auth-enabled collections that have access to the admin panel.
-
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/main/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
-
-- #### Media
-
-  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
-
-### Docker
-
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
-
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
-
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
-
-## Questions
-
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+### Analytics
+- `GET /api/analytics/stats` - Dashboard statistics (auth required)
+- `GET /api/analytics/revenue` - Revenue chart data (auth required)
+- `GET /api/analytics/top-products` - Top selling products (auth required)
