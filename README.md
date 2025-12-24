@@ -1,43 +1,55 @@
-# Astro Starter Kit: Minimal
+# NexusStore E-commerce Platform
 
-```sh
-npm create astro@latest -- --template minimal
+Plataforma de e-commerce moderna con dashboard administrativo.
+
+## Estructura del Proyecto
+
+```
+tes/
+├── api/                 # Entry point de Vercel (Python)
+├── backend/             # FastAPI backend
+│   ├── app/
+│   │   ├── api/         # Rutas de la API
+│   │   ├── core/        # Configuración y utilidades
+│   │   ├── models/      # Modelos SQLAlchemy
+│   │   └── schemas/     # Schemas Pydantic
+│   └── requirements.txt
+├── frontend/            # Next.js 16 frontend
+│   ├── src/
+│   │   ├── app/         # App Router pages
+│   │   ├── components/  # Componentes React
+│   │   └── lib/         # Utilidades y stores
+│   └── package.json
+└── vercel.json          # Configuración de Vercel
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Inicio Rápido
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+### Backend (FastAPI)
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+### Frontend (Next.js)
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## API Endpoints
 
-Any static assets, like images, can be placed in the `public/` directory.
+- **Auth**: `/api/auth/login`, `/api/auth/register`, `/api/auth/me`
+- **Products**: `/api/products/` (CRUD)
+- **Orders**: `/api/orders/` (CRUD)
+- **Customers**: `/api/customers/` (CRUD)
+- **Analytics**: `/api/analytics/stats`, `/api/analytics/revenue`, `/api/analytics/top-products`
 
-## 🧞 Commands
+## Documentación API
 
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
