@@ -37,6 +37,7 @@ export default async function HomePage() {
                   src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop"
                   width={600}
                   height={400}
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   priority
                 />
               </div>
@@ -90,15 +91,15 @@ export default async function HomePage() {
                   Get 10% off your first order and be the first to hear about
                   new arrivals.
                 </p>
-                <form className="mx-auto mt-8 flex max-w-md gap-4">
+                <form className="mx-auto mt-8 flex flex-col sm:flex-row max-w-md gap-3 sm:gap-4 px-4 sm:px-0">
                   <input
                     type="email"
                     placeholder="Enter your email"
-                    className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-shop-primary focus:outline-none focus:ring-1 focus:ring-shop-primary"
+                    className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-base sm:text-sm text-gray-900 placeholder-gray-400 focus:border-shop-primary focus:outline-none focus:ring-1 focus:ring-shop-primary"
                   />
                   <button
                     type="submit"
-                    className="rounded-lg bg-shop-primary px-6 py-3 font-medium text-white hover:opacity-90 transition-opacity"
+                    className="rounded-lg bg-shop-primary px-6 py-3 text-base sm:text-sm font-medium text-white hover:opacity-90 transition-opacity whitespace-nowrap"
                   >
                     Subscribe
                   </button>

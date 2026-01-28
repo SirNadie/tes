@@ -4,17 +4,19 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShopHeader, ShopFooter } from '@/components/shop';
+import CheckoutForm from '@/components/checkout/CheckoutForm';
 import { useCartStore } from '@/lib/cart';
 
 export default function CheckoutPage() {
     const [mounted, setMounted] = useState(false);
+    const [showCheckoutForm, setShowCheckoutForm] = useState(false);
     const items = useCartStore((state) => state.items);
     const updateQuantity = useCartStore((state) => state.updateQuantity);
     const removeItem = useCartStore((state) => state.removeItem);
+    const clearCart = useCartStore((state) => state.clearCart);
     const storeTotalPrice = useCartStore((state) => state.getTotalPrice());
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true);
     }, []);
 
@@ -27,6 +29,12 @@ export default function CheckoutPage() {
 
     const handleRemove = (id: string) => {
         removeItem(id);
+    };
+
+    const handleCheckoutSuccess = () => {
+        clearCart();
+        setShowCheckoutForm(false);
+        // Could redirect to success page here
     };
 
     const shipping = totalPrice > 50 ? 0 : 9.99;
@@ -62,43 +70,54 @@ export default function CheckoutPage() {
                                     Browse Products
                                 </Link>
                             </div>
+                        ) : showCheckoutForm ? (
+                            <div className="max-w-3xl mx-auto">
+                                <CheckoutForm total={grandTotal} onSuccess={handleCheckoutSuccess} />
+                            </div>
                         ) : (
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
                                 {/* Cart Items */}
                                 <div className="lg:col-span-2 space-y-4">
                                     {cartItems.map((item) => (
                                         <div
                                             key={item.id}
-                                            className="flex gap-4 p-4 bg-white rounded-xl shadow-sm"
+                                            className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-xl shadow-sm"
                                         >
-                                            <div className="w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                            <div className="w-full sm:w-24 h-48 sm:h-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
                                                 <Image
                                                     src={item.image}
                                                     alt={item.title}
                                                     width={96}
                                                     height={96}
+                                                    sizes="(max-width: 640px) 100vw, 96px"
                                                     className="w-full h-full object-cover"
                                                 />
                                             </div>
-                                            <div className="flex-1 flex flex-col">
-                                                <h3 className="font-medium text-gray-900">{item.title}</h3>
-                                                <p className="text-shop-primary font-semibold mt-1">
-                                                    ${item.price.toFixed(2)}
+                                            <div className="flex-1 flex flex-col min-w-0">
+                                                <div className="flex justify-between items-start gap-2 mb-2">
+                                                    <h3 className="font-medium text-gray-900 flex-1">{item.title}</h3>
+                                                    <p className="font-semibold text-gray-900 sm:hidden">
+                                                        ${(item.price * item.quantity).toFixed(2)}
+                                                    </p>
+                                                </div>
+                                                <p className="text-shop-primary font-semibold mb-4 sm:mb-auto">
+                                                    ${item.price.toFixed(2)} <span className="text-gray-500 text-sm font-normal">each</span>
                                                 </p>
-                                                <div className="flex items-center gap-4 mt-auto">
+                                                <div className="flex items-center justify-between sm:justify-start gap-4 mt-auto">
                                                     <div className="flex items-center border border-gray-300 rounded-lg">
                                                         <button
                                                             type="button"
                                                             onClick={() =>
                                                                 handleQuantityChange(item.id, item.quantity - 1)
                                                             }
-                                                            className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
+                                                            className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
+                                                            aria-label="Decrease quantity"
                                                         >
-                                                            <span className="material-symbols-outlined text-sm">
+                                                            <span className="material-symbols-outlined text-base sm:text-sm">
                                                                 remove
                                                             </span>
                                                         </button>
-                                                        <span className="w-8 text-center text-sm font-medium">
+                                                        <span className="w-12 sm:w-8 text-center text-sm font-medium">
                                                             {item.quantity}
                                                         </span>
                                                         <button
@@ -106,9 +125,10 @@ export default function CheckoutPage() {
                                                             onClick={() =>
                                                                 handleQuantityChange(item.id, item.quantity + 1)
                                                             }
-                                                            className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
+                                                            className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
+                                                            aria-label="Increase quantity"
                                                         >
-                                                            <span className="material-symbols-outlined text-sm">
+                                                            <span className="material-symbols-outlined text-base sm:text-sm">
                                                                 add
                                                             </span>
                                                         </button>
@@ -116,13 +136,13 @@ export default function CheckoutPage() {
                                                     <button
                                                         type="button"
                                                         onClick={() => handleRemove(item.id)}
-                                                        className="text-red-500 hover:text-red-600 transition-colors text-sm font-medium"
+                                                        className="text-red-500 hover:text-red-600 transition-colors text-sm font-medium px-2"
                                                     >
                                                         Remove
                                                     </button>
                                                 </div>
                                             </div>
-                                            <div className="text-right">
+                                            <div className="hidden sm:block text-right">
                                                 <p className="font-semibold text-gray-900">
                                                     ${(item.price * item.quantity).toFixed(2)}
                                                 </p>
@@ -133,7 +153,7 @@ export default function CheckoutPage() {
 
                                 {/* Order Summary */}
                                 <div className="lg:col-span-1">
-                                    <div className="bg-white rounded-xl shadow-sm p-6 sticky top-24">
+                                    <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 lg:sticky lg:top-24">
                                         <h2 className="text-lg font-semibold text-gray-900 mb-4">
                                             Order Summary
                                         </h2>
@@ -168,6 +188,7 @@ export default function CheckoutPage() {
                                         )}
                                         <button
                                             type="button"
+                                            onClick={() => setShowCheckoutForm(true)}
                                             className="w-full mt-6 py-3 px-4 bg-shop-primary text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
                                         >
                                             Proceed to Checkout

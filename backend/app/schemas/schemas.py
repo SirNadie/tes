@@ -1,13 +1,23 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Generic, TypeVar, List
 from pydantic import BaseModel, EmailStr
 
+# Generic type for paginated responses
+T = TypeVar('T')
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    items: List[T]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
 
 # ============ User Schemas ============
 class UserBase(BaseModel):
     email: EmailStr
     full_name: Optional[str] = None
     role: str = "admin"
+    is_active: bool = True
 
 
 class UserCreate(UserBase):
@@ -16,8 +26,8 @@ class UserCreate(UserBase):
 
 class UserResponse(UserBase):
     id: int
-    is_active: bool
     created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
@@ -25,7 +35,7 @@ class UserResponse(UserBase):
 
 class Token(BaseModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type: str
 
 
 class TokenData(BaseModel):
@@ -113,12 +123,13 @@ class ProductResponse(ProductBase):
     id: int
     created_at: datetime
     updated_at: datetime
+    category: Optional[CategoryResponse] = None
 
     class Config:
         from_attributes = True
 
 
-# ============ Order Schemas ============
+# ============ Order Item Schemas ============
 class OrderItemBase(BaseModel):
     product_id: int
     quantity: int
@@ -131,18 +142,20 @@ class OrderItemCreate(OrderItemBase):
 
 class OrderItemResponse(OrderItemBase):
     id: int
+    product: Optional[ProductResponse] = None
 
     class Config:
         from_attributes = True
 
 
+# ============ Order Schemas ============
 class OrderBase(BaseModel):
-    customer_id: Optional[int] = None
+    customer_id: int
     status: str = "pending"
-    total: float
     subtotal: float
     tax: float = 0
     shipping_cost: float = 0
+    total: float
     shipping_address: Optional[str] = None
     billing_address: Optional[str] = None
     notes: Optional[str] = None
@@ -154,6 +167,8 @@ class OrderCreate(OrderBase):
 
 class OrderUpdate(BaseModel):
     status: Optional[str] = None
+    shipping_address: Optional[str] = None
+    billing_address: Optional[str] = None
     notes: Optional[str] = None
 
 
@@ -162,6 +177,7 @@ class OrderResponse(OrderBase):
     order_number: str
     created_at: datetime
     updated_at: datetime
+    customer: Optional[CustomerResponse] = None
     items: list[OrderItemResponse] = []
 
     class Config:
@@ -172,22 +188,18 @@ class OrderResponse(OrderBase):
 class StatsResponse(BaseModel):
     total_revenue: float
     total_orders: int
-    average_order_value: float
-    total_customers: int
-    total_products: int
-    pending_orders: int
-    delivered_orders: int
+    avg_order_value: float
+    active_customers: int
 
 
 class RevenueDataPoint(BaseModel):
     date: str
     revenue: float
-    expenses: float
+    orders: int
 
 
 class TopProductResponse(BaseModel):
-    id: int
-    name: str
-    price: float
-    sold: int
-    image_url: Optional[str] = None
+    product_id: int
+    product_name: str
+    total_sold: int
+    total_revenue: float

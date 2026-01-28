@@ -1,6 +1,7 @@
 import { ShopHeader, ShopFooter } from '@/components/shop';
 import ProductGrid from '@/components/shop/ProductGrid';
-import { getProducts, getCategories } from '@/lib/products';
+import Pagination from '@/components/ui/Pagination';
+import { getProductsPaginated, getCategories } from '@/lib/products';
 import Link from 'next/link';
 
 export const metadata = {
@@ -23,23 +24,20 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     const searchParam = params.search;
     const sortParam = params.sort || 'featured';
     const pageParam = parseInt(params.page || '1');
-    const limitParam = 100; // Increase limit for now or implement proper pagination in getProducts
+    const pageSize = 12;
 
-    const [products, categories] = await Promise.all([
-        getProducts({
+    const [productsData, categories] = await Promise.all([
+        getProductsPaginated({
             search: searchParam,
-            category: categoryParam, // Note: This might need adjustment if backend expects ID. For now relying on search/filtering logic in getProducts
-            limit: limitParam,
+            category: categoryParam,
+            page: pageParam,
+            page_size: pageSize,
         }),
         getCategories(),
     ]);
 
-    // Client-side sorting for now as backend sort might need more work
-    // Or we can rely on backend if we implemented it. The current backend implementation has basic sorting but not full.
-    // Let's keep client-side sorting for the returned batch for now, but search is server-side.
-    const sortedProducts = [...products];
-
-    // Sort products
+    // Client-side sorting (backend doesn't support sort parameter yet)
+    let sortedProducts = [...productsData.items];
     switch (sortParam) {
         case 'price-asc':
             sortedProducts.sort((a, b) => a.price - b.price);
@@ -51,26 +49,19 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
             sortedProducts.sort((a, b) => a.title.localeCompare(b.title));
             break;
         case 'newest':
-            // Assuming we have created_at, but we don't in the interface yet.
-            // If backend returns robust order, we can skip this.
-            // For now, let's just reverse as a proxy or keep client logic if possible.
             sortedProducts.reverse();
             break;
         default:
             break;
     }
 
-    // Pagination (Client-side pagination of the server result for now, unless we fully implement page param in API)
-    const ITEMS_PER_PAGE = 12;
-    const totalItems = sortedProducts.length;
-    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-    const currentPage = Math.max(1, Math.min(pageParam, totalPages || 1));
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const paginatedProducts = sortedProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-    // Variables are already defined above
-
     const allCategories = ['All', ...categories];
+
+    // Build pagination params
+    const paginationParams: Record<string, string> = {};
+    if (categoryParam && categoryParam !== 'All') paginationParams.category = categoryParam;
+    if (searchParam) paginationParams.search = searchParam;
+    if (sortParam !== 'featured') paginationParams.sort = sortParam;
 
     return (
         <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-background-light">
@@ -93,9 +84,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                     {/* Main Content */}
                     <section className="mx-auto max-w-7xl px-8 py-12">
                         {/* Filters Bar */}
-                        <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-6 border-b border-gray-200">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 pb-6 border-b border-gray-200">
                             {/* Category Filter */}
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 sm:pb-0 -mx-2 px-2 sm:mx-0 sm:px-0">
                                 {allCategories.map((category) => (
                                     <Link
                                         key={category}
@@ -111,8 +102,8 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                             </div>
 
                             {/* Sort Links */}
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm text-gray-500">Sort:</span>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                                <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">Sort:</span>
                                 <div className="flex gap-1 flex-wrap">
                                     {[
                                         { value: 'featured', label: 'Featured' },
@@ -137,14 +128,15 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
                         {/* Product Count */}
                         <p className="text-sm text-gray-500 mb-6">
-                            Showing {paginatedProducts.length} of {totalItems} products
+                            Showing {sortedProducts.length} of {productsData.total} products
+                            {productsData.total_pages > 1 && ` (Page ${productsData.page} of ${productsData.total_pages})`}
                         </p>
 
                         {/* Products Grid */}
-                        <ProductGrid products={paginatedProducts} />
+                        <ProductGrid products={sortedProducts} />
 
                         {/* Empty State */}
-                        {paginatedProducts.length === 0 && (
+                        {sortedProducts.length === 0 && (
                             <div className="text-center py-16">
                                 <span className="material-symbols-outlined text-6xl text-gray-300">
                                     inventory_2
@@ -159,22 +151,12 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                         )}
 
                         {/* Pagination */}
-                        {totalPages > 1 && (
-                            <div className="flex justify-center gap-2 mt-12">
-                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                                    <Link
-                                        key={page}
-                                        href={`/shop?page=${page}${categoryParam ? `&category=${categoryParam}` : ''}${sortParam !== 'featured' ? `&sort=${sortParam}` : ''}`}
-                                        className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-all ${currentPage === page
-                                            ? 'bg-shop-primary text-white'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {page}
-                                    </Link>
-                                ))}
-                            </div>
-                        )}
+                        <Pagination
+                            currentPage={productsData.page}
+                            totalPages={productsData.total_pages}
+                            baseUrl="/shop"
+                            params={paginationParams}
+                        />
                     </section>
                 </main>
                 <ShopFooter />

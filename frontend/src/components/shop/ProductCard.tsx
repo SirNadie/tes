@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useCartStore } from '@/lib/cart';
+import { toast } from '@/lib/toast';
 
 interface ProductCardProps {
     id: string;
@@ -28,15 +29,20 @@ export default function ProductCard({
         e.preventDefault();
         e.stopPropagation();
 
-        addItem({
-            id,
-            title,
-            price,
-            image,
-        });
+        try {
+            addItem({
+                id,
+                title,
+                price,
+                image,
+            });
 
-        setIsAdded(true);
-        setTimeout(() => setIsAdded(false), 2000);
+            setIsAdded(true);
+            toast.success(`${title} added to cart!`);
+            setTimeout(() => setIsAdded(false), 2000);
+        } catch (error) {
+            toast.error('Failed to add item to cart');
+        }
     };
 
     return (
@@ -56,7 +62,9 @@ export default function ProductCard({
                     alt={title}
                     width={400}
                     height={400}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
                 />
                 {/* Quick View Overlay */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">

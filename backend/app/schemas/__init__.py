@@ -6,6 +6,7 @@ from app.schemas.schemas import (
     OrderItemBase, OrderItemCreate, OrderItemResponse,
     OrderBase, OrderCreate, OrderUpdate, OrderResponse,
     StatsResponse, RevenueDataPoint, TopProductResponse,
+    PaginatedResponse,
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "OrderItemBase", "OrderItemCreate", "OrderItemResponse",
     "OrderBase", "OrderCreate", "OrderUpdate", "OrderResponse",
     "StatsResponse", "RevenueDataPoint", "TopProductResponse",
+    "PaginatedResponse",
 ]

@@ -1,65 +1,253 @@
+# ============================================
 # Dependencies
+# ============================================
 node_modules/
-/.pnp
+.pnp
 .pnp.js
 .yarn/install-state.gz
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
 
-# Next.js
+# ============================================
+# Next.js / Frontend Build
+# ============================================
 .next/
 out/
 build/
 dist/
+.vercel
+.vercel.json
 
-# Production
+# ============================================
+# TypeScript / Build Info
+# ============================================
 *.tsbuildinfo
+next-env.d.ts
 
-# Payload CMS
-media/
+# ============================================
+# Python / Backend
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Python Distribution / Packaging
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ============================================
+# Database Files
+# ============================================
 *.db
 *.sqlite
+*.sqlite3
+*.db-journal
+nexusstore.db
 backend.db
+*.db-shm
+*.db-wal
 
-# Environment
+# ============================================
+# Environment Variables
+# ============================================
 .env
-.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
 !.env.example
 
+# ============================================
 # Logs
+# ============================================
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-*.log
+bun-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
+# ============================================
+# Package Manager Lock Files
+# ============================================
+# Keep bun.lockb (needed for Bun)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+# bun.lockb - Keep this!
+
+# Package Manager Caches
+.npm/
+.yarn/
+.pnpm-store/
+.npm-cache/
+.yarn/cache
+
+# ============================================
 # Testing
+# ============================================
 coverage/
+.nyc_output/
 test-results/
 playwright-report/
-blob-report/
 playwright/.cache/
+blob-report/
+junit.xml
+*.lcov
 
-# IDEs
-.idea/
+# ============================================
+# IDEs and Editors
+# ============================================
+# VSCode
 .vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
 *.swp
 *.swo
-*.sublime-*
-
-# OS
-.DS_Store
-Thumbs.db
-ehthumbs.db
-Desktop.ini
 *~
+.vim/
 
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ============================================
+# OS Files
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================
+# Temporary Files
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.swo
+*~
+.cache/
+.temp/
+tmp/
+temp/
+
+# Lint and test results
+lint*.txt
+*.lint.txt
+test-results*.txt
+coverage*.txt
+
+# ============================================
 # Misc
+# ============================================
 *.pem
+*.key
+*.cert
+*.crt
+.secrets/
+
+# Vercel
 .vercel
 
-# Backend (Python/FastAPI)
-backend/venv/
-backend/__pycache__/
-backend/*.py[cod]
-backend/*.db
-venv/
-__pycache__/
+# Turbo
+.turbo
+
+# Sentry
+.sentryclirc
+
+# ============================================
+# Project Specific
+# ============================================
+# Media uploads (if using CMS)
+media/
+uploads/
+
+# Local development
+.local/
+local/
+
+# Documentation builds (if generated)
+docs/_build/
+site/
+
+# ============================================
+# Keep Important Files
+# ============================================
+!requirements.txt
+!.env.example
+!bun.lockb

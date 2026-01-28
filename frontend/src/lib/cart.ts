@@ -39,7 +39,6 @@ export const useCartStore = create<CartState>()(
 
             removeItem: (id) =>
                 set((state) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     const { [id]: _removed, ...rest } = state.items;
                     return { items: rest };
                 }),
@@ -47,7 +46,6 @@ export const useCartStore = create<CartState>()(
             updateQuantity: (id, quantity) =>
                 set((state) => {
                     if (quantity <= 0) {
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         const { [id]: _removed, ...rest } = state.items;
                         return { items: rest };
                     }

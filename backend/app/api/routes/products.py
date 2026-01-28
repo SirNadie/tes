@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.models import Product, User
-from app.schemas import ProductCreate, ProductResponse, ProductUpdate
+from app.models import Product, User, Category
+from app.schemas import ProductCreate, ProductResponse, ProductUpdate, PaginatedResponse
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -33,24 +33,102 @@ async def list_products(
 ):
     """List all products with optional filtering."""
     query = select(Product)
+    count_query = select(func.count(Product.id))
     
+    # Apply filters to both queries
     if category_id is not None:
         query = query.where(Product.category_id == category_id)
+        count_query = count_query.where(Product.category_id == category_id)
     if is_active is not None:
         query = query.where(Product.is_active == is_active)
+        count_query = count_query.where(Product.is_active == is_active)
     if is_featured is not None:
         query = query.where(Product.is_featured == is_featured)
+        count_query = count_query.where(Product.is_featured == is_featured)
     if search:
         search_lower = f"%{search}%"
-        query = query.join(Product.category).where(
+        # Use outerjoin to include products without categories
+        query = query.outerjoin(Category, Product.category_id == Category.id).where(
+            (Product.name.ilike(search_lower)) |
+            (Product.description.ilike(search_lower)) |
+            (Category.name.ilike(search_lower))
+        )
+        count_query = count_query.outerjoin(Category, Product.category_id == Category.id).where(
             (Product.name.ilike(search_lower)) |
             (Product.description.ilike(search_lower)) |
             (Category.name.ilike(search_lower))
         )
     
+    # Get total count
+    total_result = await db.execute(count_query)
+    total = total_result.scalar() or 0
+    
+    # Get paginated results
     query = query.order_by(Product.created_at.desc()).offset(skip).limit(limit)
     result = await db.execute(query)
-    return result.scalars().all()
+    products = result.scalars().all()
+    
+    return products
+
+
+@router.get("/paginated")
+async def list_products_paginated(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(12, ge=1, le=100),
+    category_id: Optional[int] = None,
+    is_active: Optional[bool] = None,
+    is_featured: Optional[bool] = None,
+    search: Optional[str] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    """List products with pagination metadata."""
+    skip = (page - 1) * page_size
+    
+    # Build base query
+    query = select(Product)
+    count_query = select(func.count(Product.id))
+    
+    # Apply filters to both queries
+    if category_id is not None:
+        query = query.where(Product.category_id == category_id)
+        count_query = count_query.where(Product.category_id == category_id)
+    if is_active is not None:
+        query = query.where(Product.is_active == is_active)
+        count_query = count_query.where(Product.is_active == is_active)
+    if is_featured is not None:
+        query = query.where(Product.is_featured == is_featured)
+        count_query = count_query.where(Product.is_featured == is_featured)
+    if search:
+        search_lower = f"%{search}%"
+        query = query.outerjoin(Category, Product.category_id == Category.id).where(
+            (Product.name.ilike(search_lower)) |
+            (Product.description.ilike(search_lower)) |
+            (Category.name.ilike(search_lower))
+        )
+        count_query = count_query.outerjoin(Category, Product.category_id == Category.id).where(
+            (Product.name.ilike(search_lower)) |
+            (Product.description.ilike(search_lower)) |
+            (Category.name.ilike(search_lower))
+        )
+    
+    # Get total count
+    total_result = await db.execute(count_query)
+    total = total_result.scalar() or 0
+    
+    # Get paginated results
+    query = query.order_by(Product.created_at.desc()).offset(skip).limit(page_size)
+    result = await db.execute(query)
+    products = result.scalars().all()
+    
+    total_pages = (total + page_size - 1) // page_size if total > 0 else 0
+    
+    return PaginatedResponse(
+        items=products,
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages,
+    )
 
 
 @router.get("/count")

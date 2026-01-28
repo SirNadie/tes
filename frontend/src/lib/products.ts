@@ -10,6 +10,14 @@ export interface Product {
     features?: string[];
 }
 
+export interface PaginatedProducts {
+    items: Product[];
+    total: number;
+    page: number;
+    page_size: number;
+    total_pages: number;
+}
+
 interface ApiProduct {
     id: number;
     name: string;
@@ -100,6 +108,65 @@ const sampleProducts: Product[] = [
     },
 ];
 
+export async function getProductsPaginated(params?: {
+    search?: string;
+    category?: string;
+    page?: number;
+    page_size?: number;
+}): Promise<PaginatedProducts> {
+    // Try to fetch from API first
+    try {
+        const searchParams = new URLSearchParams();
+        if (params?.search) searchParams.append('search', params.search);
+        if (params?.category && params.category !== 'All') {
+            searchParams.append('search', params.category);
+        }
+        if (params?.page) searchParams.append('page', String(params.page));
+        if (params?.page_size) searchParams.append('page_size', String(params.page_size));
+
+        const response = await fetch(`${API_URL}/api/products/paginated?${searchParams.toString()}`, {
+            next: { revalidate: 60 }, // Cache for 1 minute
+        });
+
+        if (response.ok) {
+            const apiData = await response.json();
+            return {
+                items: apiData.items.map((p: ApiProduct) => ({
+                    id: String(p.id),
+                    title: p.name,
+                    price: p.price,
+                    image: p.image_url || 'https://placehold.co/600x400?text=No+Image',
+                    category: p.category ? p.category.name : 'General',
+                    description: p.description || undefined,
+                    features: [],
+                })),
+                total: apiData.total,
+                page: apiData.page,
+                page_size: apiData.page_size,
+                total_pages: apiData.total_pages,
+            };
+        }
+    } catch {
+        // API not available, fallback
+    }
+
+    // Fallback: return sample products with pagination
+    const page = params?.page || 1;
+    const pageSize = params?.page_size || 12;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedItems = sampleProducts.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(sampleProducts.length / pageSize);
+
+    return {
+        items: paginatedItems,
+        total: sampleProducts.length,
+        page,
+        page_size: pageSize,
+        total_pages: totalPages,
+    };
+}
+
 export async function getProducts(params?: {
     search?: string;
     category?: string;
@@ -107,30 +174,12 @@ export async function getProducts(params?: {
     page?: number;
     limit?: number;
 }): Promise<Product[]> {
-    // Try to fetch from API first
     try {
         const searchParams = new URLSearchParams();
         if (params?.search) searchParams.append('search', params.search);
-        if (params?.category && params.category !== 'All') searchParams.append('category_id', params.category); // Note: Backend expects ID, but we might need to resolve name to ID or update backend to accept slug/name. For now, let's assume we might need to handle this.
-        // Actually, looking at backend, it expects category_id (int). The frontend uses names.
-        // We need a way to map category name to ID or update backend to accept name.
-        // Let's check if we can easily map it here, or if we should just send 'search' for now and handle category differently.
-        // Wait, the backend only takes category_id. The frontend has category names.
-        // I should probably update the backend to validat/lookup category by name or just use search for everything for now if valid ID isn't available.
-        // OR, I can fetch categories first to get the mapping.
-        // Let's just pass 'search' for now as that's the primary request.
-        // But wait, the previous code filtered by category name client side.
-        // I will implement a fetch for categories to map name -> ID if needed, OR just update backend to filter by category name join.
-        // Backend text search ALREADY joins category name! So 'search' param covers it if I type the category name.
-        // But the specific 'category' filter might be broken if I pass a name to 'category_id'.
-        // Let's just stick to 'search' param for text search.
-        // For structured category filter, I would need IDs.
-        // Let's keep it simple: Map 'search' param.
-
-        // Correct approach:
-        // The backend 'list_products' takes 'search' string.
-        // I'll pass the 'search' param from frontend to backend 'search'.
-
+        if (params?.category && params.category !== 'All') {
+            searchParams.append('search', params.category);
+        }
         if (params?.limit) searchParams.append('limit', String(params.limit));
 
         const response = await fetch(`${API_URL}/api/products/?${searchParams.toString()}`, {
@@ -152,15 +201,13 @@ export async function getProducts(params?: {
             }
         }
     } catch {
-        // API not available, using sample products
+        // Fallback to sample products
     }
 
-    // Return sample products if API fails or returns empty (fallback)
     return sampleProducts;
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
-    // Try API first
     try {
         const response = await fetch(`${API_URL}/api/products/${id}`, {
             next: { revalidate: 60 },
@@ -179,15 +226,31 @@ export async function getProductById(id: string): Promise<Product | null> {
             };
         }
     } catch {
-        // API not available, using sample products
+        // Fallback to sample products
     }
 
-    // Fallback to sample products
     return sampleProducts.find((p) => p.id === id) || null;
 }
 
 export async function getCategories(): Promise<string[]> {
-    // For now, return categories from sample products
+    // Try to fetch from API first
+    try {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const response = await fetch(`${API_URL}/api/categories/`, {
+            next: { revalidate: 3600 }, // Cache for 1 hour
+        });
+
+        if (response.ok) {
+            const apiCategories = await response.json();
+            if (apiCategories.length > 0) {
+                return apiCategories.map((c: { id: number; name: string }) => c.name);
+            }
+        }
+    } catch {
+        // API not available, fallback to sample products
+    }
+
+    // Fallback: return categories from sample products
     const products = await getProducts();
     const categories = [...new Set(products.map((p) => p.category))];
     return categories;

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Work_Sans, Inter } from 'next/font/google';
+import ToastProvider from '@/components/providers/ToastProvider';
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -52,6 +53,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         {children}
+        <ToastProvider />
       </body>
     </html>
   );

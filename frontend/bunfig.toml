@@ -1,0 +1,15 @@
+# Configuración de Bun para este proyecto
+# Documentación: https://bun.sh/docs/cli/bunfig
+
+[install]
+# Usar el directorio de instalación por defecto
+# auto = true
+
+# Preferir instalaciones offline cuando sea posible
+# prefer-offline = false
+
+# Usar el caché de Bun
+# cache = true
+
+[install.scopes]
+# Configuraciones específicas por scope si es necesario

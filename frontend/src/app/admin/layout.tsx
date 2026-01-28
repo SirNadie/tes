@@ -1,10 +1,11 @@
+import type { ReactNode } from 'react';
 import { Sidebar, Header } from '@/components/admin';
 
 export default function AdminLayout({
     children,
-}: {
-    children: React.ReactNode;
-}) {
+}: Readonly<{
+    children: ReactNode;
+}>) {
     return (
         <div className="h-screen flex overflow-hidden bg-background-video text-white">
             <Sidebar />

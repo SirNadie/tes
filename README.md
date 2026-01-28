@@ -2,6 +2,8 @@
 
 Plataforma de e-commerce moderna con dashboard administrativo.
 
+> **Nota:** Este proyecto usa [Bun](https://bun.sh) como gestor de paquetes y runtime. Ver [README-DEV.md](./README-DEV.md) para más detalles sobre el desarrollo.
+
 ## Estructura del Proyecto
 
 ```
@@ -34,11 +36,16 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-### Frontend (Next.js)
+### Frontend (Next.js con Bun)
 ```bash
 cd frontend
-npm install
-npm run dev
+bun install
+bun run dev
+```
+
+**Nota:** Este proyecto usa [Bun](https://bun.sh) como gestor de paquetes. Si no lo tienes instalado:
+```bash
+powershell -c "irm bun.sh/install.ps1 | iex"
 ```
 
 ## API Endpoints
